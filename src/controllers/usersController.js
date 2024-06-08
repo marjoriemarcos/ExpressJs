@@ -3,18 +3,39 @@ const users = [/* ... */];
 const database = require("../../database");
 
 const getUsers = (req, res) => {
+  const initialSql = "select * from users";
+  const where = [];
+
+  if (req.query.language != null) {
+    where.push({
+      column: "language",
+      value: req.query.language,
+      operator: "=",
+    })
+  }
+  if (req.query.city != null) {
+    where.push({
+      column: "city",
+      value: req.query.city,
+      operator: "=",
+    })
+  }
+  console.log('where', where)
   database
-    .query("select * from users")
+    .query(
+      where.reduce(
+        (sql, { column, operator }, index) =>
+          `${sql} ${index === 0 ? "where" : "and"} ${column} ${operator} ?`,
+        initialSql
+        ),
+        where.map(({ value }) => value)
+      )
     .then(([users]) => {
-      if (users != null){
-        res.json(users); // use res.json instead of console.log
-      } else {
-        res.sendStatus(500).send('Not found');
-      }
+        res.json(users); 
     })
     .catch((err) => {
       console.error(err);
-      res.sendStatus(500);
+      res.status(500).send("Error retrieving data from database");
     });
 };
 
