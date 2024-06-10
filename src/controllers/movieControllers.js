@@ -2,6 +2,9 @@ const movies = [/* ... */];
 
 const database = require("../../database");
 
+
+// GET
+
 const getMovies = (req, res) => {
   const initialSql = "select * from movies";
   const where = [];
@@ -57,7 +60,31 @@ const getMovieById = (req, res) => {
     });
 };
 
+// POST
+
+const postMovie = (req, res) => {
+  const { title, director, year, color, duration } = req.body;
+  database
+    .query(
+      "INSERT INTO movies(title, director, year, color, duration) VALUES (?, ?, ?, ?, ?)",
+      [title, director, year, color, duration]
+    )
+    .then(([result]) => {
+      if (result.insertId) {
+        res.status(201).send(`Movie ${result.insertId} has juste created`);
+      } else {
+        res.status(404).send("Not found");
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      res.sendStatus(500);
+    });
+};
+
+
 module.exports = {
   getMovies,
   getMovieById,
+  postMovie
 };
