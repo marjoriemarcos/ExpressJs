@@ -63,14 +63,14 @@ const postUser = (req, res) => {
 
   database
   .query(
-    "update movies set title = ?, director = ?, year = ?, color = ?, duration = ? where id = ?",
-    [title, director, year, color, duration, id]
+    "insert into users(firstname, lastname, email, city, language) VALUE(?, ?, ?, ?, ?)",
+    [firstname, lastname, email, city, language,  id]
   )
   .then(([result]) => {
-    if (result.affectedRows === 0) {
-      res.sendStatus(404);
+    if (result.insertId) {
+      res.status(201).send(`User ${result.insertId} has juste created`);
     } else {
-      res.sendStatus(204);
+      res.status(404).send("Not found");
     }
   })
   .catch((err) => {
