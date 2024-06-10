@@ -59,21 +59,47 @@ const getUsersByName = (req, res) => {
 
 const postUser = (req, res) => {
   const { firstname, lastname, email, city, language } = req.body;
+  const id = parseInt(req.params.id);
 
   database
-    .query("INSERT INTO users(firstname, lastname, email, city, language) VALUES (?, ?, ?, ?, ?)",
-      [firstname, lastname, email, city, language]
+  .query(
+    "update movies set title = ?, director = ?, year = ?, color = ?, duration = ? where id = ?",
+    [title, director, year, color, duration, id]
+  )
+  .then(([result]) => {
+    if (result.affectedRows === 0) {
+      res.sendStatus(404);
+    } else {
+      res.sendStatus(204);
+    }
+  })
+  .catch((err) => {
+    console.error(err);
+    res.sendStatus(500);
+  });
+};
+
+// PUT
+
+const updateUser = (req, res) => {
+  const { firstname, lastname, email, city, language } = req.body;
+  const id = parseInt(req.params.id);
+
+  database
+    .query(
+      "update users set firstname = ?, lastname = ?, email = ?, city = ?, language = ? where id = ?",
+      [firstname, lastname, email, city, language, id]
     )
     .then(([result]) => {
-      if (result.insertId) {
-        res.status(201).send(`User ${result.insertId} has juste created`);
+      if (result.affectedRows === 0) {
+        res.sendStatus(404);
       } else {
-        res.status(404).send("Not found");
+        res.sendStatus(204);
       }
     })
     .catch((err) => {
       console.error(err);
-      res.sendStatus(500)
+      res.sendStatus(500);
     });
 };
 
@@ -81,4 +107,5 @@ module.exports = {
   getUsers,
   getUsersByName,
   postUser,
+  updateUser,
 };
